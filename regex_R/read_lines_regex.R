@@ -1,5 +1,6 @@
 #regex R
 library(stringr)
+library(dplyr)
 #for string manipulation
 
 #reading unstructured txt files
@@ -24,4 +25,49 @@ df
 
 #this df can now be written to a csv and operated upon as required
 write.csv(df, "processed_unstructured_txt_file.csv",
+          row.names = FALSE)
+
+
+
+
+
+
+
+##FOR multiple txt files: in process
+
+#reading multiple files from a directory
+library(readr)
+
+#list_file contains the lines read out of the txt files
+list_file_1 <- list.files(pattern = "*.txt") %>%
+  lapply(readLines)
+
+x <- bind_rows(list_file, .id = "vars")
+
+
+
+
+file_list <- list.files(pattern="*.txt")                              
+
+# read in each .txt file in file_list and rbind them into a data frame called data 
+data <- do.call("rbind", lapply(file_list, 
+                 function(x) 
+                   read.table(paste(x, sep=''), 
+                              header = TRUE, 
+                              stringsAsFactors = FALSE)))
+
+clean_data <- data %>%
+  filter(str_detect(some, "^[g]"))
+
+#vars can be renamed and written to a csv for further processing
+df_clean <- clean_data %>% 
+  rename(varname = some,
+         x = warning,
+         y = message,
+         z = lines)
+
+df_clean
+
+#this df can now be written to a csv and operated upon as required
+write.csv(df_clean, "multiple_txt_files_written_into_single.csv",
           row.names = FALSE)
